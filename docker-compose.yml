@@ -1,0 +1,10 @@
+services:
+  backend:
+    build:
+      context: ./core/app
+      dockerfile: DockerFile
+    container_name: mygit_core
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./core/app:/app

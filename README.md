@@ -1,35 +1,42 @@
 # MyGit
 Scouting for profiles Github
 
-🛠️ Guía de Instalación y Configuración (Backend/Core)
+# 🛠️ Guía de Instalación y Configuración (Backend/Core)
 
-Se recomienda utilizar Python 3.11.
+Se recomienda utilizar Docker Desktop para evitar problemas de entorno, dependencias y versiones de Python. (No es necesario usar un entorno virtual)
 
-1. Configurar el entorno virtual (venv)
-Es importante usar un entorno virtual para mantener las dependencias aisladas del sistema.
-Windows
+---
+
+# 📦 Requisitos
+
+Instalar:
+
+- Docker Desktop
+- Git
+- pip actualizado
+
+Verificar instalación:
+
 ```bash
-python -m venv venv.\venv\Scripts\activate
+docker --version
 ```
-Linux / Mac
 ```bash
-python3 -m venv venvsource venv/bin/activate
+docker compose version
 ```
+---
 
-2. Instalar dependencias
-Con el entorno virtual activado ((venv) visible en la terminal), instalar las dependencias del proyecto:
+#  🚀 Levantar el proyecto
+
+Desde la raíz del proyecto ejecutar:
 ```bash
-pip install -r requirements.txt
+docker compose up -d --build
 ```
+La primera ejecución puede tardar unos minutos porque Docker descarga las imágenes y dependencias necesarias.
 
-3. Configurar variables de entorno
-Dentro de la carpeta core/ se incluye un archivo .env.example con un ejemplo de configuración para crear el archivo .env. (para mas info buscar en .env.example)
+---
 
-4. Levantar el servidor de desarrollo
-Ejecutar la API con recarga automática (hot-reload):
-```bash
-uvicorn app.main:app --reload
-```
+#  🌐 Acceso a la API
+
 La API quedará disponible en:
 ```bash
 http://127.0.0.1:8000

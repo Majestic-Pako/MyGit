@@ -216,3 +216,39 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# =========================================
+# Project local files
+# =========================================
+.env
+.env.*
+!.env.example
+
+# =========================================
+# Docker
+# =========================================
+.docker/
+docker-compose.override.yml
+docker-data/
+
+# =========================================
+# Node / Vue / Vite
+# =========================================
+node_modules/
+dist/
+dist-ssr/
+.vite/
+
+# =========================================
+# IDE / OS
+# =========================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# =========================================
+# Local JSON persistence
+# =========================================
+core/app/data/*.json
+!core/app/data/.gitkeep
