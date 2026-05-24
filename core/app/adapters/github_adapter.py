@@ -55,3 +55,22 @@ class GitHubAdapter:
             "blog": data.get("blog"),
             "twitter_username": data.get("twitter_username"),
         }
+    
+    def get_users_repositories(self, username: str) -> list[dict[str, Any]]:
+        url = f"{self.BASE_URL}/users/{username}/repos"
+
+        response = httpx.get(url, timeout=self.timeout)
+
+        return [
+        {
+            "name": repo["name"],
+            "description": repo.get("description"),
+            "language": repo.get("language"),
+            "stargazers_count": repo.get("stargazers_count", 0),
+            "forks_count": repo.get("forks_count", 0),
+            "updated_at": repo.get("updated_at"),
+            "html_url": repo["html_url"],
+            "fork": repo.get("fork", False),
+        }
+        for repo in response.json()
+    ]
