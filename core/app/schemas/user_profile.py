@@ -8,7 +8,12 @@ class UserProfile(BaseModel):
     name: str | None
     avatar_url: str | None
     bio: str | None
+    html_url: str
     public_repos: int
     followers: int
     following: int
-    html_url: str
+    account_created_at: str | None
+    location: str | None
+    company: str | None
+    blog: str | None
+    twitter_username: str | None
