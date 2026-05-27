@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Any
 
 # Schema interno para representar un perfil de usuario de GitHub.
 # Define solo los datos minimos que MyGit va a usar por ahora.
@@ -17,3 +18,4 @@ class UserProfile(BaseModel):
     company: str | None
     blog: str | None
     twitter_username: str | None
+    repositories: list[dict[str, Any]] = [] #Tomamos repositories como list, diccionario, tipo string y any, si no hay retorno, la lista queda vacia para no cometer errores de codigo.

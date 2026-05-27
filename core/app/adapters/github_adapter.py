@@ -55,7 +55,10 @@ class GitHubAdapter:
             "blog": data.get("blog"),
             "twitter_username": data.get("twitter_username"),
         }
-    
+    # Define y toma la variable asignada con la base de URL propuesto 
+    # Retorna las descripciones mencionadas pedidas.
+    #Hace un bucle para cada uno y llama a JSON.
+    #@autor Esteban
     def get_users_repositories(self, username: str) -> list[dict[str, Any]]:
         url = f"{self.BASE_URL}/users/{username}/repos"
 
