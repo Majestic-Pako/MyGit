@@ -72,8 +72,7 @@ class GitHubAdapter:
             "stargazers_count": repo.get("stargazers_count", 0),
             "forks_count": repo.get("forks_count", 0),
             "updated_at": repo.get("updated_at"),
-            "html_url": repo["html_url"],
-            "fork": repo.get("fork", False),
+            "html_url": repo["html_url"],   
         }
         for repo in response.json()
     ]
