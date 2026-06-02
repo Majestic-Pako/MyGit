@@ -34,7 +34,7 @@ class GitHubAdapter:
             raise GitHubAdapterError("Usuario de GitHub no encontrado.", status_code=404)
 
         if response.status_code >= 400:
-            raise GitHubAdapterError("No se pudo obtener el perfil desde GitHub.")
+            raise GitHubAdapterError("No se pudo obtener el perfil desde GitHub.Status{response.status_code}")
 
         data = response.json()
         return self._map_profile_data(data)
@@ -62,7 +62,7 @@ class GitHubAdapter:
     def get_users_repositories(self, username: str) -> list[dict[str, Any]]:
         url = f"{self.BASE_URL}/users/{username}/repos"
 
-        response = httpx.get(url, timeout=self.timeout)
+        response = httpx.get(url, headers={"Accept": "application/vnd.github+json", "User-Agent": "MyGit-FastAPI"}, timeout=self.timeout)
 
         return [
         {
