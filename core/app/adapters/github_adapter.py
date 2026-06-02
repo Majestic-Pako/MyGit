@@ -34,7 +34,7 @@ class GitHubAdapter:
             raise GitHubAdapterError("Usuario de GitHub no encontrado.", status_code=404)
 
         if response.status_code >= 400:
-            raise GitHubAdapterError("No se pudo obtener el perfil desde GitHub.")
+            raise GitHubAdapterError("No se pudo obtener el perfil desde GitHub.Status{response.status_code}")
 
         data = response.json()
         return self._map_profile_data(data)
@@ -55,3 +55,24 @@ class GitHubAdapter:
             "blog": data.get("blog"),
             "twitter_username": data.get("twitter_username"),
         }
+    # Define y toma la variable asignada con la base de URL propuesto 
+    # Retorna las descripciones mencionadas pedidas.
+    #Hace un bucle para cada uno y llama a JSON.
+    #@autor Esteban
+    def get_users_repositories(self, username: str) -> list[dict[str, Any]]:
+        url = f"{self.BASE_URL}/users/{username}/repos"
+
+        response = httpx.get(url, headers={"Accept": "application/vnd.github+json", "User-Agent": "MyGit-FastAPI"}, timeout=self.timeout)
+
+        return [
+        {
+            "name": repo["name"],
+            "description": repo.get("description"),
+            "language": repo.get("language"),
+            "stargazers_count": repo.get("stargazers_count", 0),
+            "forks_count": repo.get("forks_count", 0),
+            "updated_at": repo.get("updated_at"),
+            "html_url": repo["html_url"],   
+        }
+        for repo in response.json()
+    ]
