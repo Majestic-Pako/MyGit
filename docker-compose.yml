@@ -4,6 +4,8 @@ services:
       context: ./core/app
       dockerfile: DockerFile
     container_name: mygit_core
+    env_file:
+      - ./core/.env
     ports:
       - "8000:8000"
     volumes:

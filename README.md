@@ -82,3 +82,17 @@ La aplicación quedará disponible en:
 ```bash
 http://localhost:5173
 ```
+
+---
+
+# Configuracion de variables
+
+Backend/Core (`core/.env`):
+```bash
+GITHUB_TOKEN=tu_token_de_github
+```
+
+Frontend/UI (`ui/.env`):
+```bash
+VITE_API_URL=http://localhost:8000
+```

@@ -2,6 +2,8 @@ from typing import Any
 
 import httpx
 
+from config.settings import settings
+
 # Adapter para consumir la API publica de GitHub.
 # Convierte la respuesta externa en un formato interno propio.
 # @autor Agus
@@ -18,23 +20,46 @@ class GitHubAdapter:
     def __init__(self, timeout: float = 10.0):
         self.timeout = timeout
 
-    def get_profile_data(self, username: str) -> dict[str, Any]:
-        url = f"{self.BASE_URL}/users/{username}"
+    def _github_token(self) -> str | None:
+        token = settings.GITHUB_TOKEN
+        if not token:
+            return None
+
+        token = token.strip().strip('"').strip("'")
+        if token in {"tu_token_aqui", "tu_token_de_github"}:
+            return None
+
+        return token
+
+    def _headers(self) -> dict[str, str]:
         headers = {
             "Accept": "application/vnd.github+json",
             "User-Agent": "MyGit-FastAPI",
         }
 
+        token = self._github_token()
+        if token:
+            auth_scheme = "token" if token.startswith("ghp_") else "Bearer"
+            headers["Authorization"] = f"{auth_scheme} {token}"
+
+        return headers
+
+    def get_profile_data(self, username: str) -> dict[str, Any]:
+        url = f"{self.BASE_URL}/users/{username}"
+
         try:
-            response = httpx.get(url, headers=headers, timeout=self.timeout)
+            response = httpx.get(url, headers=self._headers(), timeout=self.timeout)
         except httpx.RequestError as exc:
             raise GitHubAdapterError("GitHub no responde en este momento.") from exc
 
         if response.status_code == 404:
             raise GitHubAdapterError("Usuario de GitHub no encontrado.", status_code=404)
 
+        if response.status_code == 401:
+            raise GitHubAdapterError("Token de GitHub invalido o vencido. Revisa GITHUB_TOKEN en core/.env.", status_code=401)
+
         if response.status_code >= 400:
-            raise GitHubAdapterError("No se pudo obtener el perfil desde GitHub.Status{response.status_code}")
+            raise GitHubAdapterError(f"No se pudo obtener el perfil desde GitHub. Status {response.status_code}")
 
         data = response.json()
         return self._map_profile_data(data)
@@ -62,7 +87,16 @@ class GitHubAdapter:
     def get_users_repositories(self, username: str) -> list[dict[str, Any]]:
         url = f"{self.BASE_URL}/users/{username}/repos"
 
-        response = httpx.get(url, headers={"Accept": "application/vnd.github+json", "User-Agent": "MyGit-FastAPI"}, timeout=self.timeout)
+        response = httpx.get(url, headers=self._headers(), timeout=self.timeout)
+
+        if response.status_code == 404:
+            raise GitHubAdapterError("Usuario de GitHub no encontrado.", status_code=404)
+
+        if response.status_code == 401:
+            raise GitHubAdapterError("Token de GitHub invalido o vencido. Revisa GITHUB_TOKEN en core/.env.", status_code=401)
+
+        if response.status_code >= 400:
+            raise GitHubAdapterError(f"No se pudieron obtener los repositorios desde GitHub. Status {response.status_code}")
 
         return [
         {

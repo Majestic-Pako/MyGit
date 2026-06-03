@@ -1,15 +1,19 @@
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 
-# Carga las variables del archivo .env
-load_dotenv()
+# Carga las variables desde core/.env para ejecuciones locales.
+# En Docker, docker-compose tambien inyecta este archivo con env_file.
+ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
+load_dotenv(ENV_FILE)
 
+# Lectura del token guardado si no hay token devuelve null
 class Settings:
     PROJECT_NAME: str = "MyGIT Scouting"
-    # El token se lee del .env; si no está, queda como None
-    GITHUB_TOKEN: str = os.getenv("GITHUB_TOKEN")
+
+    GITHUB_TOKEN: str | None = os.getenv("GITHUB_TOKEN")
     
-    # Asi agregamos mas configuraciones, por ejemplo:
     API_V1_STR: str = "/api/v1"
 
 settings = Settings()
