@@ -67,6 +67,9 @@ def get_github_user(username: str):
     }
 
 
+# Convierte el UserProfile a dict manteniendo compatibilidad de Pydantic.
+# @version 1.0
+# @author Agus
 def _profile_to_dict(profile: UserProfile) -> dict:
     if hasattr(profile, "model_dump"):
         return profile.model_dump()

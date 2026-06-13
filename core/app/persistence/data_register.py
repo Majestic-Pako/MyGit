@@ -6,9 +6,15 @@ from persistence.json_cache_file import read_json_object, write_json_object
 
 
 class DataRegister:
+    # Inicializa el registrador con el archivo JSON de cache.
+    # @version 1.0
+    # @author Agus
     def __init__(self, cache_file=USERS_CACHE_FILE):
         self.cache_file = cache_file
 
+    # Guarda profile y analysis en cache bajo el username normalizado.
+    # @version 1.0
+    # @author Agus
     def save_user_profile(
         self,
         username: str,
@@ -32,9 +38,15 @@ class DataRegister:
 
         return cache_data[normalized_username]
 
+    # Normaliza el username para mantener una sola clave por usuario.
+    # @version 1.0
+    # @author Agus
     def _normalize_username(self, username: str) -> str:
         return username.strip().lower()
 
+    # Genera la fecha UTC del registro cacheado en formato ISO.
+    # @version 1.0
+    # @author Agus
     def _current_timestamp(self) -> str:
         return (
             datetime.now(timezone.utc)
