@@ -99,13 +99,16 @@ class GitHubAdapter:
             raise GitHubAdapterError(f"No se pudieron obtener los repositorios desde GitHub. Status {response.status_code}")
 
         return [
+            #Retorna lo indicado de abajo y se agrego fecha de creacion y ultimo commit que seria la fecha del ultimo commit.
+            #@autor: Esteban.
         {
             "name": repo["name"],
             "description": repo.get("description"),
             "language": repo.get("language"),
             "stargazers_count": repo.get("stargazers_count", 0),
             "forks_count": repo.get("forks_count", 0),
-            "updated_at": repo.get("updated_at"),
+            "created_at": repo.get("created_at"),
+            "last_commit": repo.get("pushed_at"),
             "html_url": repo["html_url"],   
         }
         for repo in response.json()
