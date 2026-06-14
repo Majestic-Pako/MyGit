@@ -1,6 +1,7 @@
 <template>
   <section class="view">
     <h1>Dashboard</h1>
+    <p v-if="localUser" class="dashboard-greeting">Hola, {{ localUser }}</p>
 
     <form class="search-form" @submit.prevent="searchUser">
       <label for="github-username">Usuario de GitHub</label>
@@ -19,6 +20,13 @@
     </form>
 
     <p v-if="error" class="error-message">{{ error }}</p>
+
+    <p v-if="sourceMessage" class="source-message">
+      {{ sourceMessage }}
+      <span v-if="result?.metadata?.cached_at">
+        Cache: {{ formatDate(result.metadata.cached_at) }}
+      </span>
+    </p>
 
     <article v-if="result" class="profile-card">
       <img :src="result.profile.avatar_url" :alt="result.profile.username" />
@@ -52,27 +60,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { getGithubUser } from '../services/githubAnalysisService'
+import { useDashboardViewModel } from '../viewModels/useDashboardViewModel'
 
-const username = ref('')
-const loading = ref(false)
-const error = ref('')
-const result = ref(null)
-
-async function searchUser() {
-  loading.value = true
-  error.value = ''
-  result.value = null
-
-  try {
-    result.value = await getGithubUser(username.value)
-  } catch (err) {
-    error.value = err.message || 'Ocurrio un error inesperado.'
-  } finally {
-    loading.value = false
-  }
-}
+const {localUser,username,loading,error,result,sourceMessage,searchUser,formatDate,
+} = useDashboardViewModel()
 </script>
 
 <style scoped>
@@ -80,6 +71,12 @@ async function searchUser() {
   display: grid;
   gap: 10px;
   margin-top: 24px;
+}
+
+.dashboard-greeting {
+  color: var(--text);
+  font-size: 18px;
+  margin-top: 4px;
 }
 
 .search-form label {
@@ -126,6 +123,16 @@ async function searchUser() {
 .error-message {
   color: #ff7b72;
   margin-top: 18px;
+}
+
+.source-message {
+  color: var(--text-muted);
+  margin-top: 18px;
+}
+
+.source-message span {
+  display: block;
+  margin-top: 4px;
 }
 
 .profile-card {

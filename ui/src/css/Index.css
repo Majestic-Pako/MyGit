@@ -1,0 +1,30 @@
+.index-view {
+    min-height: 420px;
+    display: grid;
+    align-items: center;
+    }
+
+.index-content {
+    max-width: 640px;
+    }
+
+.eyebrow {
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    }
+
+.primary-action {
+    background: var(--primary);
+    border: 0;
+    border-radius: 6px;
+    color: var(--background);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    margin-top: 24px;
+    padding: 12px 18px;
+    }
