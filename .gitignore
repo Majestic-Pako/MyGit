@@ -51,6 +51,9 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# MyGit runtime cache
+core/storage/cache/*.json
+
 # Translations
 *.mo
 *.pot
