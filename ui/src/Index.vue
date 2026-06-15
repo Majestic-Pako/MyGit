@@ -129,12 +129,8 @@
 
 <script setup>
 import {
-  Activity,
-  BarChart3,
-  Code2,
-  FolderGit2,
-  LayoutDashboard,
-  UserRound,
+  Activity,BarChart3,Code2,FolderGit2,
+  LayoutDashboard,UserRound,
 } from 'lucide-vue-next'
 import { useIndexViewModel } from './viewModels/useIndexViewModel'
 import './css/Index.css'

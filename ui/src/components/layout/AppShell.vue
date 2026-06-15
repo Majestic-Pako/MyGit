@@ -15,5 +15,5 @@ import AppFooter from './AppFooter.vue'
 import AppHeader from './AppHeader.vue'
 
 const route = useRoute()
-const showHeader = computed(() => route.name !== 'index')
+const showHeader = computed(() => !['index', 'login'].includes(route.name))
 </script>

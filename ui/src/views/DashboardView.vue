@@ -295,7 +295,7 @@ import {
   Database,FolderGit2,Github,Search,User,
 } from 'lucide-vue-next'
 import { useDashboardViewModel } from '../viewModels/useDashboardViewModel'
-import '../styles/dashboard.css'
+import '../css/dashboard.css'
 
 const {
   localUser,username,loading,error,result,sourceMessage,
