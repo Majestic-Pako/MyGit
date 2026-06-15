@@ -72,11 +72,7 @@
           </div>
 
           <div class="snapshot-rows">
-            <div
-              v-for="stat in terminalStats"
-              :key="stat.label"
-              class="snapshot-row"
-            >
+            <div v-for="stat in terminalStats":key="stat.label" class="snapshot-row">
               <span>{{ stat.label }}</span>
               <strong>{{ stat.value }}</strong>
             </div>

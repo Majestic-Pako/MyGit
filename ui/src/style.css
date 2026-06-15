@@ -105,7 +105,8 @@ a {
   text-decoration: none;
 }
 
-.app-nav a.router-link-active {
+.app-nav a.router-link-active,
+.app-nav a.router-link-exact-active {
   background: var(--primary-soft);
   color: var(--primary);
 }
