@@ -164,5 +164,36 @@ class GitHubAdapter:
             "last_commit": repo.get("pushed_at"),
             "html_url": repo["html_url"],   
         }
-        for repo in response.json()
+        for repo in response.json()   
     ]
+    def get_repository_languages(self, owner: str, repo: str) -> dict[str, int]:
+        url = f"{self.BASE_URL}/repos/{owner}/{repo}/languages"
+
+        try:
+            response = httpx.get(url, headers=self._headers(), timeout=self.timeout)
+        except httpx.RequestError as exc:
+            raise GitHubConnectionError("GitHub no responde en este momento.") from exc
+
+        self._handle_response_errors(response, context=f"repositorio '{repo}'")
+
+        return response.json()  # {"Python": 12400, "HTML": 3200, ...}
+
+    def get_repository_contributors(self, owner: str, repo: str) -> list[dict[str, Any]]:
+        url = f"{self.BASE_URL}/repos/{owner}/{repo}/contributors"
+
+        try:
+            response = httpx.get(url, headers=self._headers(), timeout=self.timeout)
+        except httpx.RequestError as exc:
+            raise GitHubConnectionError("GitHub no responde en este momento.") from exc
+
+        self._handle_response_errors(response, context=f"repositorio '{repo}'")
+
+        return [
+            {
+                "username": contributor["login"],
+                "avatar_url": contributor.get("avatar_url"),
+                "html_url": contributor.get("html_url"),
+                "contributions": contributor.get("contributions", 0),
+            }
+            for contributor in response.json()
+        ]
