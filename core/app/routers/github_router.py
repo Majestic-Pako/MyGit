@@ -20,10 +20,25 @@ from strategies.repository_analysis import RepositoryAnalysisStrategy #Empieza d
 # Coordina adapter, schema y estrategias para devolver el perfil analizado.
 # @autor Agus
 router = APIRouter(prefix="/github", tags=["GitHub"])
+SOURCE_CACHE = "cache"
+SOURCE_GITHUB = "github"
 
 
 @router.get("/user/{username}")
 def get_github_user(username: str):
+    cache_history = CacheHistory()
+    cached_user = cache_history.find_by_username(username)
+
+    if cached_user:
+        return {
+            "profile": cached_user.get("profile", {}),
+            "analysis": cached_user.get("analysis", {}),
+            "metadata": {
+                "source": SOURCE_CACHE,
+                "cached_at": cached_user.get("cached_at"),
+            },
+        }
+
     adapter = GitHubAdapter()
     try:
         profile_data = adapter.get_profile_data(username)
@@ -67,10 +82,19 @@ def get_github_user(username: str):
             RepositoryAnalysisStrategy(), #LLamamos al archivo asignado. @Autor Esteban
         ]
     )
+    analysis = analyzer.run(profile)
+    DataRegister().save_user_profile(
+        username=profile.username,
+        profile=_profile_to_dict(profile),
+        analysis=analysis,
+    )
 
     return {
         "profile": profile,
-        "analysis": analyzer.run(profile),
+        "analysis": analysis,
+        "metadata": {
+            "source": SOURCE_GITHUB,
+        },
     }
 # Endpoints individuales para probar cada analisis de forma independiente
 # @autor Esteban
