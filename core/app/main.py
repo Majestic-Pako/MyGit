@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from routers.db_router import router as db_router
 from routers.github_router import router as github_router
 
 # Punto de entrada de la API FastAPI.
@@ -23,6 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(github_router)
+app.include_router(db_router)
 
 
 @app.get("/")
