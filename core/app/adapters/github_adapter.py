@@ -13,6 +13,23 @@ class GitHubAdapterError(Exception):
         self.status_code = status_code
         super().__init__(message)
 
+#Se agrega el excepciones propias para el proyecto basadas en clases.
+#Mas abajo(o otra parte..) se agrega el manejo de excepciones.
+#Autor: Esteban
+class GitHubAPIError(GitHubAdapterError):
+    """Error generico de la API de GitHub."""
+
+class GitHubNotFoundError(GitHubAdapterError):
+    """Usuario o recurso no encontrado (404)."""
+
+class GitHubRateLimitError(GitHubAdapterError):
+    """Rate limit alcanzado (403 / 429)."""
+
+class GitHubUnauthorizedError(GitHubAdapterError):
+    """Token invalido o sin permisos (401)."""
+
+class GitHubConnectionError(GitHubAdapterError):
+    """No se pudo establecer conexion con GitHub."""
 
 class GitHubAdapter:
     BASE_URL = "https://api.github.com"
@@ -43,7 +60,45 @@ class GitHubAdapter:
             headers["Authorization"] = f"{auth_scheme} {token}"
 
         return headers
+    #Manejo de Excepciones, aca abajo.
+    #Author: Esteban
+    def _handle_response_errors(self, response: httpx.Response, context: str) -> None:
+        code = response.status_code
 
+        if code == 401 or code == 403:
+            if code == 403 and "rate limit" in response.text.lower():
+                raise GitHubRateLimitError(
+                    "Rate limit de GitHub alcanzado. Intenta de nuevo en unos minutos.",
+                    status_code=429,
+                )
+            raise GitHubUnauthorizedError(
+                "Token de GitHub invalido o sin permisos necesarios.",
+                status_code=401,
+            )
+
+        if code == 404:
+            raise GitHubNotFoundError(
+                f"No se encontro el {context} en GitHub.",
+                status_code=404,
+            )
+
+        if code == 429:
+            raise GitHubRateLimitError(
+                "Rate limit de GitHub alcanzado. Intenta de nuevo en unos minutos.",
+                status_code=429,
+            )
+
+        if code >= 500:
+            raise GitHubAPIError(
+                "GitHub respondio con un error de servidor. Intenta mas tarde.",
+                status_code=502,
+            )
+
+        if code >= 400:
+            raise GitHubAPIError(
+                f"Error inesperado al obtener {context}.",
+                status_code=500,
+            )
     def get_profile_data(self, username: str) -> dict[str, Any]:
         url = f"{self.BASE_URL}/users/{username}"
 
@@ -105,7 +160,8 @@ class GitHubAdapter:
             "language": repo.get("language"),
             "stargazers_count": repo.get("stargazers_count", 0),
             "forks_count": repo.get("forks_count", 0),
-            "updated_at": repo.get("updated_at"),
+            "created_at": repo.get("created_at"),
+            "last_commit": repo.get("pushed_at"),
             "html_url": repo["html_url"],   
         }
         for repo in response.json()

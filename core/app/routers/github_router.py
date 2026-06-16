@@ -7,7 +7,8 @@ from strategies.basic_profile_analysis import BasicProfileStrategy
 from strategies.collaboration_analysis import CollaborationAnalysisStrategy
 from strategies.language_analysis import LanguageAnalysisStrategy
 from strategies.repository_analysis import RepositoryAnalysisStrategy #Empieza desde la carpeta strategies y importa el archivo necesario. @Autor Esteban
-
+#Se agrego esto, nada mas.
+from adapters.github_adapter import(GitHubAdapter,GitHubAdapter,GitHubAdapterError,GitHubAdapter,GitHubAdapterError,GitHubAPIError,GitHubNotFoundError,GitHubRateLimitError,GitHubUnauthorizedError,GitHubConnectionError,)
 # Router HTTP para endpoints relacionados con GitHub.
 # Coordina adapter, schema y estrategias para devolver el perfil analizado.
 # @autor Agus

@@ -30,7 +30,7 @@ class RepositoryAnalysisStrategy(InterfaceAnalysis):
 
         recently_updated = sorted(
             repositories,
-            key=lambda repo: repo["updated_at"],
+            key=lambda repo: repo["last_commit"] or "",
             reverse=True
         )[:5]
 
