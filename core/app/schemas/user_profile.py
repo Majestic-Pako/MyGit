@@ -19,3 +19,6 @@ class UserProfile(BaseModel):
     blog: str | None
     twitter_username: str | None
     repositories: list[dict[str, Any]] = [] #Tomamos repositories como list, diccionario, tipo string y any, si no hay retorno, la lista queda vacia para no cometer errores de codigo.
+    languages:dict[str,int]={} #Agregamos lenguages #Author: Esteban
+    contributors_per_repo: list[dict[str, Any]] = []  # Detalle de colaboradores por repositorio. @autor Esteban
+    

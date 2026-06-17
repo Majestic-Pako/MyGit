@@ -29,9 +29,9 @@ class RepositoryAnalysisStrategy(InterfaceAnalysis):
         )
 
         recently_updated = sorted(
-        repositories,
-        key=lambda repo: repo["last_commit"] or "",
-        reverse=True
+            repositories,
+            key=lambda repo: repo["last_commit"] or "",
+            reverse=True
         )[:5]
 
         languages = list({
