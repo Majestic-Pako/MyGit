@@ -1,6 +1,10 @@
 import json
+import logging
 from pathlib import Path
 from typing import Any
+
+
+logger = logging.getLogger(__name__)
 
 
 # Lee un objeto JSON y devuelve cache vacio si no se puede usar.
@@ -13,7 +17,8 @@ def read_json_object(file_path: Path) -> dict[str, Any]:
 
         with file_path.open("r", encoding="utf-8") as cache_file:
             data = json.load(cache_file)
-    except (OSError, json.JSONDecodeError):
+    except (OSError, json.JSONDecodeError) as exc:
+        logger.warning("No se pudo leer el archivo de cache %s: %s", file_path, exc)
         return {}
 
     if not isinstance(data, dict):

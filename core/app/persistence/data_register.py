@@ -31,10 +31,7 @@ class DataRegister:
             "analysis": analysis,
         }
 
-        try:
-            write_json_object(self.cache_file, cache_data)
-        except OSError:
-            pass
+        write_json_object(self.cache_file, cache_data)
 
         return cache_data[normalized_username]
 
