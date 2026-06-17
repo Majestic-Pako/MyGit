@@ -1,4 +1,17 @@
 services:
+  database:
+    image: mysql:8.0
+    container_name: mygit_database
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: MyGitDB
+    ports:
+      - "3306:3306"
+    volumes:
+      - mygit_db_data:/var/lib/mysql
+      - ./db/MyGitDB.sql:/docker-entrypoint-initdb.d/MyGitDB.sql
+
   backend:
     build:
       context: ./core/app
@@ -10,3 +23,8 @@ services:
       - "8000:8000"
     volumes:
       - ./core/app:/app
+    depends_on:
+      - database
+
+volumes:
+  mygit_db_data:

@@ -1,18 +1,15 @@
-import os
-from pathlib import Path
+from infrastructure.settings import settings as env_settings
 
-from dotenv import load_dotenv
 
-# Carga las variables desde core/.env para ejecuciones locales.
-# En Docker, docker-compose tambien inyecta este archivo con env_file.
-ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
-load_dotenv(ENV_FILE)
+"""
+    Define la configuracion general de la aplicacion FastAPI.
 
-# Lectura del token guardado si no hay token devuelve null
+    @version 1.0
+    @author Agus
+"""
 class Settings:
     PROJECT_NAME: str = "MyGIT Scouting"
-
-    GITHUB_TOKEN: str | None = os.getenv("GITHUB_TOKEN")
+    GITHUB_TOKEN: str | None = env_settings.GITHUB_TOKEN
     
     API_V1_STR: str = "/api/v1"
 
