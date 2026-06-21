@@ -151,6 +151,12 @@ a {
     transform 0.2s ease;
 }
 
+.nav-button {
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .nav-link:hover {
   color: var(--text);
   background: rgba(66, 184, 131, 0.08);
@@ -300,7 +306,7 @@ a {
   .app-nav {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
   }
 

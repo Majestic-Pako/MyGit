@@ -142,7 +142,12 @@ class GitHubAdapter:
     def get_users_repositories(self, username: str) -> list[dict[str, Any]]:
         url = f"{self.BASE_URL}/users/{username}/repos"
 
-        response = httpx.get(url, headers=self._headers(), timeout=self.timeout)
+        response = httpx.get(
+            url,
+            headers=self._headers(),
+            params={"sort": "updated", "per_page": 30},
+            timeout=self.timeout,
+        )
 
         if response.status_code == 404:
             raise GitHubAdapterError("Usuario de GitHub no encontrado.", status_code=404)
@@ -176,9 +181,18 @@ class GitHubAdapter:
         except httpx.RequestError as exc:
             raise GitHubConnectionError("GitHub no responde en este momento.") from exc
 
-        self._handle_response_errors(response, context=f"repositorio '{repo}'")
+        if response.status_code != 200 or not response.content:
+            return {}
 
-        return response.json()  # {"Python": 12400, "HTML": 3200, ...}
+        try:
+            languages_data = response.json()
+        except ValueError:
+            return {}
+
+        if not isinstance(languages_data, dict):
+            return {}
+
+        return languages_data  # {"Python": 12400, "HTML": 3200, ...}
 
     def get_repository_contributors(self, owner: str, repo: str) -> list[dict[str, Any]]:
         url = f"{self.BASE_URL}/repos/{owner}/{repo}/contributors"
@@ -188,7 +202,16 @@ class GitHubAdapter:
         except httpx.RequestError as exc:
             raise GitHubConnectionError("GitHub no responde en este momento.") from exc
 
-        self._handle_response_errors(response, context=f"repositorio '{repo}'")
+        if response.status_code != 200 or not response.content:
+            return []
+
+        try:
+            contributors_data = response.json()
+        except ValueError:
+            return []
+
+        if not isinstance(contributors_data, list):
+            return []
 
         return [
             {
@@ -197,5 +220,6 @@ class GitHubAdapter:
                 "html_url": contributor.get("html_url"),
                 "contributions": contributor.get("contributions", 0),
             }
-            for contributor in response.json()
+            for contributor in contributors_data
+            if isinstance(contributor, dict) and contributor.get("login")
         ]

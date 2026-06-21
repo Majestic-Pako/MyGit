@@ -38,6 +38,10 @@ export function useHistoryViewModel() {
   }
 
   function sourceLabel(source) {
+    if (source === 'database') {
+      return 'Base de datos'
+    }
+
     if (source === 'cache') {
       return 'Cache'
     }
