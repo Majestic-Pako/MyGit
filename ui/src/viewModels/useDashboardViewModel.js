@@ -14,6 +14,10 @@ export function useDashboardViewModel() {
   const error = ref('')
   const result = ref(null)
   const sourceMessage = computed(() => {
+    if (result.value?.metadata?.source === 'database') {
+      return 'Datos cargados desde la base de datos'
+    }
+
     if (result.value?.metadata?.source === 'cache') {
       return 'Datos cargados desde cache'
     }

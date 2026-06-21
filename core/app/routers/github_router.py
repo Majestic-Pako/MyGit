@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException
 from adapters.github_adapter import GitHubAdapter, GitHubAdapterError
 from persistence.cache_history import CacheHistory
 from persistence.data_register import DataRegister
+from repositories.cache_entry_repository import CacheEntryRepository
 from schemas.user_profile import UserProfile
 from services.profile_analyzer import ProfileAnalyzer
 from strategies.basic_profile_analysis import BasicProfileStrategy
@@ -18,12 +19,49 @@ from strategies.repository_analysis import RepositoryAnalysisStrategy #Empieza d
 router = APIRouter(prefix="/github", tags=["GitHub"])
 logger = logging.getLogger(__name__)
 SOURCE_CACHE = "cache"
+SOURCE_DATABASE = "database"
 SOURCE_GITHUB = "github"
+MAX_ANALYZED_REPOSITORIES = 13
 
 
 @router.get("/user/{username}")
 def get_github_user(username: str):
     cache_status = "available"
+    try:
+        database_entry = CacheEntryRepository().get_latest_snapshot_by_username(username)
+
+        if database_entry is not None:
+            payload = database_entry.get("raw_data")
+            if (
+                not isinstance(payload, dict)
+                or "profile" not in payload
+                or "analysis" not in payload
+                or not isinstance(payload["profile"], dict)
+                or not isinstance(payload["analysis"], dict)
+            ):
+                raise ValueError("Snapshot MySQL invalido")
+
+            metadata = payload.get("metadata")
+            if not isinstance(metadata, dict):
+                metadata = {}
+            else:
+                metadata = metadata.copy()
+
+            metadata["source"] = SOURCE_DATABASE
+            metadata.setdefault(
+                "cached_at",
+                payload.get("timestamp") or database_entry.get("created_at"),
+            )
+            payload["metadata"] = metadata
+
+            return {
+                "profile": payload["profile"],
+                "analysis": payload["analysis"],
+                "metadata": payload["metadata"],
+            }
+    except Exception:
+        logger.warning("Se ignoro el snapshot MySQL del usuario %s", username)
+
     try:
         cached_user = CacheHistory().find_by_username(username)
     except Exception:
@@ -46,28 +84,30 @@ def get_github_user(username: str):
         profile_data = adapter.get_profile_data(username)
         
         repositories = adapter.get_users_repositories(username) #Declara la variable y llama desde adapter a la otra variable asignada que es get_users_repositories.@Autor Esteban
-        profile_data["repositories"] = repositories #Toma profile_data, toma clave repositories y guarda la lista de repositorios.@Autor Esteban
-        # Toma los lenguajes de los primeros 7 repos
+        analyzed_repositories = repositories[:MAX_ANALYZED_REPOSITORIES]
+        profile_data["repositories"] = analyzed_repositories #Toma profile_data, toma clave repositories y guarda la lista de repositorios.@Autor Esteban
+        # Toma los lenguajes de los repositorios incluidos en el analisis
         # Si falla un repo puntual, continua con los demas sin romper el analisis
         # @autor Esteban
         accumulated_languages = {}
-        for repo in repositories[:7]:
+        profile_data["languages"] = accumulated_languages
+        for repo in analyzed_repositories:
             try:
                 repo_languages = adapter.get_repository_languages(username, repo["name"])
                 for lang, bytes_ in repo_languages.items():
                     accumulated_languages[lang] = accumulated_languages.get(lang, 0) + bytes_
-            except GitHubAdapterError:
+            except Exception:
                 continue
-        profile_data["languages"] = accumulated_languages
+        profile_data["contributors"] = []
         contributors_per_repo = []
-        for repo in repositories[:7]:
+        for repo in analyzed_repositories:
             try:
                 contributors = adapter.get_repository_contributors(username, repo["name"])
                 contributors_per_repo.append({
                     "repository": repo["name"],
                     "contributors": contributors,
                 })
-            except GitHubAdapterError:
+            except Exception:
                 continue
         profile_data["contributors_per_repo"] = contributors_per_repo
 
@@ -156,12 +196,12 @@ def get_user_languages(username: str):
     try:
         repositories = adapter.get_users_repositories(username)
         accumulated_languages = {}
-        for repo in repositories[:7]:
+        for repo in repositories[:MAX_ANALYZED_REPOSITORIES]:
             try:
                 repo_languages = adapter.get_repository_languages(username, repo["name"])
                 for lang, bytes_ in repo_languages.items():
                     accumulated_languages[lang] = accumulated_languages.get(lang, 0) + bytes_
-            except GitHubAdapterError:
+            except Exception:
                 continue
         sorted_languages = dict(
             sorted(accumulated_languages.items(), key=lambda x: x[1], reverse=True)
@@ -182,14 +222,14 @@ def get_user_contributors(username: str):
     try:
         repositories = adapter.get_users_repositories(username)
         contributors_per_repo = []
-        for repo in repositories[:7]:
+        for repo in repositories[:MAX_ANALYZED_REPOSITORIES]:
             try:
                 contributors = adapter.get_repository_contributors(username, repo["name"])
                 contributors_per_repo.append({
                     "repository": repo["name"],
                     "contributors": contributors,
                 })
-            except GitHubAdapterError:
+            except Exception:
                 continue
     except GitHubAdapterError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.message) from exc
