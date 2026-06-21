@@ -85,15 +85,34 @@ def get_github_user(username: str):
         ]
     )
     analysis = analyzer.run(profile)
+    
+    profile_dict = _profile_to_dict(profile)
+    data_register = DataRegister()
+    
+    # 1. Guardar en cache JSON (persistencia primaria)
     try:
-        DataRegister().save_user_profile(
+        data_register.save_user_profile(
             username=profile.username,
-            profile=_profile_to_dict(profile),
+            profile=profile_dict,
             analysis=analysis,
         )
     except Exception:
         logger.exception("No se pudo guardar la cache del usuario %s", username)
         cache_status = "write_failed" if cache_status == "available" else "unavailable"
+    
+    # 2. Persistir en MySQL de forma incremental (no rompe el flujo si falla)
+    try:
+        db_persisted = data_register.persist_to_mysql(
+            username=profile.username,
+            profile=profile_dict,
+            analysis=analysis,
+        )
+        if not db_persisted and cache_status == "available":
+            cache_status = "db_persist_failed"
+    except Exception:
+        logger.exception("Error inesperado al persistir en MySQL para %s", username)
+        if cache_status == "available":
+            cache_status = "db_persist_error"
 
     metadata = {"source": SOURCE_GITHUB}
     if cache_status != "available":
