@@ -1,5 +1,5 @@
 CREATE DATABASE IF NOT EXISTS MyGitDB
-## Estos son para los caracteres especiales O-O
+-- Charset utf8mb4 para soportar caracteres especiales y emojis.
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
@@ -42,6 +42,42 @@ CREATE TABLE IF NOT EXISTS repositories (
         REFERENCES github_profiles(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS languages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    github_profile_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    percentage DECIMAL(5,2) DEFAULT 0,
+    bytes_count BIGINT DEFAULT 0,
+    repositories_count INT DEFAULT 0,
+
+    CONSTRAINT fk_languages_github_profile
+        FOREIGN KEY (github_profile_id)
+        REFERENCES github_profiles(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT uq_profile_language
+        UNIQUE (github_profile_id, name)
+);
+
+CREATE TABLE IF NOT EXISTS collaborators (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    github_profile_id INT NOT NULL,
+    username VARCHAR(100) NOT NULL,
+    avatar_url VARCHAR(500),
+    html_url VARCHAR(500),
+    contributions INT DEFAULT 0,
+
+    CONSTRAINT fk_collaborators_github_profile
+        FOREIGN KEY (github_profile_id)
+        REFERENCES github_profiles(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT uq_profile_collaborator
+        UNIQUE (github_profile_id, username)
 );
 
 CREATE TABLE IF NOT EXISTS search_history (
@@ -99,6 +135,12 @@ CREATE TABLE IF NOT EXISTS profile_metrics (
 
 CREATE INDEX idx_repositories_profile
 ON repositories(github_profile_id);
+
+CREATE INDEX idx_languages_profile
+ON languages(github_profile_id);
+
+CREATE INDEX idx_collaborators_profile
+ON collaborators(github_profile_id);
 
 CREATE INDEX idx_search_history_user
 ON search_history(user_id);

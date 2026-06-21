@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from routers.auth_router import router as auth_router
 from routers.db_router import router as db_router
 from routers.github_router import router as github_router
 
@@ -25,6 +26,7 @@ app.add_middleware(
 
 app.include_router(github_router)
 app.include_router(db_router)
+app.include_router(auth_router)
 
 
 @app.get("/")

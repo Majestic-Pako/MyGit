@@ -201,33 +201,11 @@
             <Code2 :size="17" aria-hidden="true" />
             <h2 id="modules-title">secondary.modules</h2>
           </div>
-          <span class="status-chip">[PENDING]</span>
+          <span class="status-chip status-chip-ok">[READY]</span>
         </div>
 
         <div class="dashboard-modules-grid">
-          <article class="dashboard-module-card dashboard-module-language">
-            <div class="dashboard-module-title">
-              <Code2 :size="18" aria-hidden="true" />
-              <h3>languages.distribution</h3>
-            </div>
-            <p>Por lenguaje principal de repositorio.</p>
-            <div v-if="languageDistribution.length" class="language-bars">
-              <div v-for="language in languageDistribution":key="language.language"
-                class="language-row" :style="{ '--language-color': language.color }">
-                <div>
-                  <span class="language-name">{{ language.language }}</span>
-                  <strong>{{ language.percentage }}%</strong>
-                </div>
-                <span class="language-bar">
-                  <span :style="{ width: `${language.percentage}%` }"></span>
-                </span>
-              </div>
-            </div>
-            <div v-else class="module-empty">Sin lenguajes disponibles.</div>
-            <span class="status-chip" :class="{ 'status-chip-ok': languageDistribution.length }">
-              {{ languageDistribution.length ? '[OK] languages.map' : '[PENDING] languages.map' }}
-            </span>
-          </article>
+          <LanguageSummary class="dashboard-module-language-wide" :summary="languageSummary" />
 
           <article class="dashboard-module-card dashboard-module-activity">
             <div class="dashboard-module-title">
@@ -267,6 +245,8 @@
               </span>
             </div>
           </article>
+
+          <CollaboratorsSummary :summary="collaborationSummary" />
         </div>
       </section>
     </template>
@@ -294,12 +274,14 @@ import {
   Activity,AlertCircle,BarChart3,CheckCircle2,Clock,Code2,
   Database,FolderGit2,Github,Search,User,
 } from 'lucide-vue-next'
+import CollaboratorsSummary from '../components/dashboard/CollaboratorsSummary.vue'
+import LanguageSummary from '../components/dashboard/LanguageSummary.vue'
 import { useDashboardViewModel } from '../viewModels/useDashboardViewModel'
 import '../css/dashboard.css'
 
 const {
   localUser,username,loading,error,result,sourceMessage,
-  featuredRepositories,repositoriesCount, languageDistribution,
+  featuredRepositories,repositoriesCount,languageSummary,collaborationSummary,
   recentRepositories,hasRepositories,analysisStatus,
   searchUser,formatDate, formatShortDate,
 } = useDashboardViewModel()
